@@ -1,0 +1,21 @@
+@Override
+    public void run() {
+        while(true) {
+            while (running == null) {  // wait for a task to extract
+                running = taskQueue.poll();
+            }
+
+            // mark the start time of the newly polled task
+            lastStartTime = 1000 * (long) Timer.getTimeDouble();
+            try {
+                Thread.sleep(running.getLeft());  // simulate running of task
+                running.finish();  // mark as finished
+            } catch (InterruptedException e) {  // preemption happened
+                running.setLeft(running.getLeft() - (1000 * (long) Timer.getTimeDouble() - lastStartTime));
+                taskQueue.put(running);  // put task back in running with the left
+                                         // value updated
+            }
+
+            running = null;  // reset running task
+        }
+    }
